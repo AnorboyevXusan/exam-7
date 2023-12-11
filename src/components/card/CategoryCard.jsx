@@ -59,14 +59,14 @@ const CategoryCard = () => {
                                     />
                                 </div>
                                 <div className="category-text">
-                                    <h3>{card.title}</h3>
-                                    <p className="popular_text">{card.desc}</p>
+                                    <h3>{card?.title}</h3>
+                                    <p className="popular_text">{card?.desc}</p>
                                 </div>
                             </div>
                         </NavLink>
                     </div>))}
             </Slider>
-        </div>);
+        </div>)
 };
 
 export default CategoryCard;
