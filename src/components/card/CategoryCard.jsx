@@ -1,6 +1,5 @@
 import {useEffect, useState} from "react";
 
-
 import "./category.scss";
 
 import "swiper/css";
@@ -8,7 +7,6 @@ import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/pagination";
 
-// import { IMG } from "../../const";
 import Slider from "react-slick";
 import {NavLink} from "react-router-dom";
 import {$api} from "../../api/index.js";
@@ -57,6 +55,7 @@ const CategoryCard = () => {
                                 <div className="img_category">
                                     <img
                                         src={card?.img?.full_url}
+                                         alt={'a'}
                                     />
                                 </div>
                                 <div className="category-text">
