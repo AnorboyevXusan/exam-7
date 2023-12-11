@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import request from "../../server";
+
 
 import "./category.scss";
 
@@ -11,7 +11,6 @@ import "swiper/css/pagination";
 // import { IMG } from "../../const";
 import Slider from "react-slick";
 import {NavLink} from "react-router-dom";
-import {IMG} from "../../const";
 import {$api} from "../../api/index.js";
 
 const CategoryCard = () => {
