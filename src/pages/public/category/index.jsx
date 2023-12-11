@@ -107,8 +107,8 @@ const CategoryPage = () => {
                 </div>
             </section>
         </Fragment>
-    );
-};
+    )
+}
 
 
 export default CategoryPage;
