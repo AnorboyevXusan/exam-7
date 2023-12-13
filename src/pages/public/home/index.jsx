@@ -1,6 +1,6 @@
 import {memo, useEffect, useState} from "react";
 import {NavLink} from "react-router-dom";
-import CategoryCard from "../../../components/card/CategoryCard";
+import CategoryCard from "../../../components/card/categoryCard";
 import PopularCard from "../../../components/card/PopularCard";
 import "./style.scss";
 import {$api} from "../../../api/index.js";
