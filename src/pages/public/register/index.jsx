@@ -1,127 +1,117 @@
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useFormik } from "formik";
-import { useContext } from "react";
+import {useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
 import "./style.scss";
-import { AuthContext } from "../../../context/AuthContext";
-import request from "../../../server";
-import registerSchema from "../../../schemas/register";
-import Cookies from "js-cookie";
-import { ROLE, TOKEN } from "../../../const";
+import {toast} from "react-toastify";
+import {$api} from "../../../api/index.js";
 
 const RegisterPage = () => {
-  const { setSavedUsername } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const formik = useFormik({
-    initialValues: {
-      first_name: "",
-      last_name: "",
-      username: "",
-      password: "",
-      confirm: "",
-    },
-    validationSchema: registerSchema,
-    onSubmit: async (values) => {
-      try {
-        if (values.password === values.confirm) {
-          const {data: { token, role }} = await request.post(`/auth/register`, values);
-          if (role === "user") {
-            navigate("/my-posts");
-          } else {
-            navigate("/dashboard");
-          }
-          Cookies.set(TOKEN, token);
-          localStorage.setItem(ROLE, role);
-          toast.success("You are registrated !");
-          setSavedUsername(values.first_name);
-          navigate("/login");
+
+    const localMe = localStorage.getItem('me')
+    const me = JSON?.parse(localMe)
+
+    const navigate = useNavigate()
+
+
+    const [fName, setFName] = useState('')
+    const [lName, setLName] = useState('')
+    const [userName, setUserName] = useState('')
+    const [password, setPassword] = useState('')
+    const [password2, setPassword2] = useState('')
+
+    const register = (e) => {
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append('firstName', fName)
+        formData.append('lastName', lName)
+        formData.append('userName', userName)
+        formData.append('password', password)
+
+        if (password === password2) {
+            $api
+                .post(`/users`, formData, {
+                    headers: {
+                        "Content-Type": 'application/x-www-form-urlencoded',
+                        "Authorization": 'Bearer Tad216tIaccvhAKVAd5TYssnZqM63IUBVwNiHFUM'
+                    }
+                })
+                .then(res => {
+                    toast.success('Success!')
+
+                    localStorage.setItem('me', JSON?.stringify(res.data?.[0]))
+
+                    navigate('/my-posts')
+
+                    window.location.reload()
+                })
+                .catch(err => {
+                    toast.error(err?.response?.data?.message)
+                })
+
         } else {
-          toast.error("Please confirm your password");
+            toast.error('Parollar bir biriga togri kelmayotur !')
         }
-      } catch (err) {
-        toast.error(err.response.data);
-      }
-    },
-  });
+    }
 
-  return (
-    <section id="login-form">
-      <div className="container">
-        <h1 className="login__title">Register</h1>
-        <form
-          autoComplete="off"
-          onSubmit={formik.handleSubmit}
-          className="login-inputs"
-        >
-          <input
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.first_name}
-            type="text"
-            name="first_name"
-            placeholder="First name"
-            className="login-input"
-          />
-          {formik.touched.first_name && formik.errors.first_name ? (
-            <p className="error-message">{formik.errors.first_name}</p>
-          ) : null}
-          <input
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.last_name}
-            type="text"
-            name="last_name"
-            placeholder="Last name"
-            className="login-input"
-          />
-          {formik.touched.last_name && formik.errors.last_name ? (
-            <p className="error-message">{formik.errors.last_name}</p>
-          ) : null}
-          <input
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.username}
-            required
-            name="username"
-            type="text"
-            placeholder="Username"
-            className="login-input"
-          />
-          {formik.touched.username && formik.errors.username ? (
-            <p className="error-message">{formik.errors.username}</p>
-          ) : null}
 
-          <input
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.password}
-            required
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="login-input"
-          />
-          {formik.touched.password && formik.errors.password ? (
-            <p className="error-message">{formik.errors.password}</p>
-          ) : null}
-          <input
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.confirm}
-            required
-            name="confirm"
-            type="password"
-            placeholder="Confirm"
-            className="login-input"
-          />
-          {formik.touched.confirm && formik.errors.confirm ? (
-            <p className="error-message">{formik.errors.confirm}</p>
-          ) : null}
-          <input className="login-btn" type="submit" value="Register" onClick={()=> {}} />
-        </form>
-      </div>
-    </section>
-  );
+    useEffect(() => {
+        me && navigate('/my-posts')
+    }, [me, navigate])
+
+
+    return (
+        <section id="login-form">
+            <div className="container">
+                <h1 className="login__title">Register</h1>
+                <form
+                    autoComplete="off"
+                    onSubmit={register}
+                    className="login-inputs"
+                >
+                    <input
+                        onChange={(e) => setFName(e.target.value)}
+                        type="text"
+                        name="first_name"
+                        placeholder="First name"
+                        className="login-input"
+                    />
+                    <input
+                        onChange={(e)=>setLName(e.target.value)}
+                        type="text"
+                        name="last_name"
+                        placeholder="Last name"
+                        className="login-input"
+                    />
+                    <input
+                        onChange={(e)=>setUserName(e.target.value)}
+                        required
+                        name="username"
+                        type="text"
+                        placeholder="Username"
+                        className="login-input"
+                    />
+                    <input
+                        onChange={(e)=>setPassword(e.target.value)}
+                        required
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        className="login-input"
+                    />
+                    <input
+                        onChange={(e)=>setPassword2(e.target.value)}
+                        required
+                        name="confirm"
+                        type="password"
+                        placeholder="Confirm"
+                        className="login-input"
+                    />
+                    <input className="login-btn" type="submit" value="Register" onClick={() => {
+                    }}/>
+                </form>
+            </div>
+        </section>
+    );
 };
 
 export default RegisterPage;

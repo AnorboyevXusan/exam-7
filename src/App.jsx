@@ -18,7 +18,10 @@ import MyPostsPage from "./pages/user/my-posts/my-blog";
 // import MyPostsPage from "./pages/user/my-posts";
 
 function App() {
-    const {isAuthenticated, role} = useContext(AuthContext);
+
+    const localMe = localStorage.getItem('me')
+    const me = JSON?.parse(localMe)
+
     return (
         <BrowserRouter>
             <Routes>
@@ -33,30 +36,23 @@ function App() {
                     <Route
                         path="/my-posts"
                         element={
-                            isAuthenticated && role === "user" || role === "admin" ? (
-                                <MyPostsPage/>
-                            ) : (
-                                <Navigate to="/login"/>
-                            )
+                            me ? <MyPostsPage/> : <Navigate to="/login"/>
                         }
                     />
                     <Route
                         path="/account"
                         element={
-                            isAuthenticated ? <AccountPage/> : <Navigate to="/login"/>
+                            me ? <AccountPage/> : <Navigate to="/login"/>
                         }
                     />
                     <Route
                         path="/account/edit"
                         element={
-                            isAuthenticated ? <AccountEdit/> : <Navigate to="/login"/>
+                            me ? <AccountEdit/> : <Navigate to="/login"/>
                         }
                     />
                 </Route>
 
-                {isAuthenticated && role === "admin" ? (
-                    <Route path="/dashboard" element={<DashboardPage/>}/>
-                ) : null}
                 <Route path="*" element={<NotFoundPage/>}/>
             </Routes>
         </BrowserRouter>

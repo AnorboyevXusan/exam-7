@@ -1,15 +1,18 @@
-import { useContext } from "react";
-import { NavLink } from "react-router-dom";
-import { AuthContext } from "../../../context/AuthContext";
+import {NavLink} from "react-router-dom";
 import "./Header.scss";
 import logo from "../../../assets/header/Logo.svg";
+
 const Header = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+
+  const localMe = localStorage.getItem('me')
+  const me = JSON?.parse(localMe)
+
+
   return (
     <header>
       <div className="container navbar">
         <div className="logo">
-          {isAuthenticated ? (
+          {me ? (
             <NavLink className="logo" to="/my-posts">
               My Posts
             </NavLink>
@@ -26,7 +29,7 @@ const Header = () => {
             <NavLink className="link" to="/about">About</NavLink>
             <NavLink className="link" to="/register">Register</NavLink>
           </div>
-          {isAuthenticated ? (
+          {me ? (
             <NavLink className="nav-btn" to="/account">Account</NavLink>
           ) : (
             <NavLink className="nav-btn" to="/login">Login</NavLink>

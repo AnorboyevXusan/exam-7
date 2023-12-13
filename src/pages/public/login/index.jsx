@@ -1,86 +1,83 @@
-import { useFormik } from "formik";
-import Cookies from "js-cookie";
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { ROLE, TOKEN } from "../../../const";
-import { AuthContext } from "../../../context/AuthContext";
-import loginSchema from "../../../schemas/login";
-import request from "../../../server";
+import {useEffect, useState} from "react";
+import {toast} from "react-toastify";
 import "./style.scss";
+import {$api} from "../../../api/index.js";
+import {useNavigate} from "react-router-dom";
+
 const LoginPage = () => {
-  const { setSavedUsername } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const { setIsAuthenticated, setRole, setPassword } = useContext(AuthContext);
 
-  const formik = useFormik({
-    initialValues: {
-      username: "",
-      password: "",
-    },
-    validationSchema: loginSchema,
-    onSubmit: async (values) => {
-      try {
-        const {
-          data: { token, role },
-        } = await request.post("auth/login", values);
-        if (role === "user") {
-          navigate("/my-posts");
+    const localMe = localStorage.getItem('me')
+    const me = JSON?.parse(localMe)
+
+    const navigate = useNavigate()
+
+    const [userName, setUserName] = useState('')
+    const [password, setPassword] = useState('')
+
+    const logIn = (psw) => {
+        if (psw === password) {
+            toast.success('Success')
+
+            localStorage.setItem('token', `${'###'}`)
+
+            $api
+                .get(`users?where[userName]=${encodeURIComponent(userName)}`, {
+                    headers: {Auth: localStorage.getItem('token')}
+                })
+                .then(res => {
+                    localStorage.setItem('me', JSON?.stringify(res.data?.[0]))
+
+                    window.location.reload()
+                })
+
+            navigate('/my-posts')
         } else {
-          navigate("/dashboard");
+            toast.error('Password error!')
         }
-        setIsAuthenticated(true);
-        setRole(role);
-        Cookies.set(TOKEN, token);
-        localStorage.setItem(ROLE, role);
-        
-        request.defaults.headers.Authorization = `Bearer ${token}`;
+    }
+    const afterLogin = (e) => {
+        e.preventDefault()
 
-        setSavedUsername(values.username);
-        setPassword(values.password);
+        $api
+            .get(`users?where[userName]=${encodeURIComponent(userName)}`)
+            .then(res => {
+                logIn(res.data?.[0]?.password)
+            })
+    }
 
-      } catch (err) {
-        toast.error(err.response.data);
-      }
-    },
-  });
-  return (
-    <section id="login">
-      <div className="container">
-        <form className="login-form" onSubmit={formik.handleSubmit}>
-          <h1>Login</h1>
-          <div className="login-inputs">
-            <input
-              className="login-input"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.username}
-              autoComplete="off"
-              name="username"
-              type="text"
-              placeholder="Username"
-            />
-            {formik.touched.username && formik.errors.username ? (
-              <p className="error-message">{formik.errors.username}</p>
-            ) : null}
-            <input
-              className="login-input"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.password}
-              name="password"
-              type="password"
-              placeholder="Password"
-            />
-            {formik.touched.password && formik.errors.password ? (
-              <p className="error-message">{formik.errors.password}</p>
-            ) : null}
-            <input className="login-btn" type="submit" value="login" />
-          </div>
-        </form>
-      </div>
-    </section>
-  );
+
+    useEffect(() => {
+        me && navigate('/my-posts')
+    }, [me, navigate])
+
+
+    return (
+        <section id="login">
+            <div className="container">
+                <form className="login-form" onSubmit={afterLogin}>
+                    <h1>Login</h1>
+                    <div className="login-inputs">
+                        <input
+                            className="login-input"
+                            onChange={(e) => setUserName(e.target.value)}
+                            autoComplete="off"
+                            name="username"
+                            type="text"
+                            placeholder="Username"
+                        />
+                        <input
+                            className="login-input"
+                            onChange={(e) => setPassword(e.target.value)}
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                        />
+                        <input className="login-btn" type="submit" value="login"/>
+                    </div>
+                </form>
+            </div>
+        </section>
+    );
 };
 
 export default LoginPage;
